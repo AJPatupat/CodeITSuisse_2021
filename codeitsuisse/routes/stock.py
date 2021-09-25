@@ -54,7 +54,7 @@ def stock_hunter():
         seen = [[False]*x_count for _ in range(y_count)]
         pq = [(0, input['targetPoint']['first'], input['targetPoint']['second'])]
         while len(pq) != 0:
-            val, x, y = heapq.heappop(pq_A)
+            val, x, y = heapq.heappop(pq)
             if not seen[y][x]:
                 seen[y][x] = True
                 val += grid[y][x]
