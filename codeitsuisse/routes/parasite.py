@@ -109,7 +109,7 @@ def parasite():
             row_col_list = [int(int_str) for int_str in row_col_str.split(',')]
             row = row_col_list[0]
             col = row_col_list[1]
-            if grid_O[row][col] == 1 or grid_A[row][col] < max_count:
+            if grid_O[row][col] == 1 and grid_A[row][col] < max_count:
                 room_output['p1'][row_col_str] = grid_A[row][col]
             else:
                 room_output['p1'][row_col_str] = -1
