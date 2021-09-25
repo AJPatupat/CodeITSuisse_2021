@@ -57,7 +57,7 @@ def expected_return_per_view(option_dict, view_dict):
 @app.route('/optopt', methods=['POST'])
 def optopt():
     input = request.get_json()
-    #logging.info("Input: {}".format(input))
+    logging.info("Input: {}".format(input))
 
     option_dicts = input['options']
     view_dicts = input['view']
@@ -127,5 +127,5 @@ def optopt():
     else:
         output[pos] = -100
 
-    #logging.info("Output: {}".format(output))
+    logging.info("Output: {}".format(output))
     return json.dumps(output)
