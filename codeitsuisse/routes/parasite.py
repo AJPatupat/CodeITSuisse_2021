@@ -27,11 +27,9 @@ def parasite():
 
         grid_A = [ [0]*col_count for _ in range(row_count) ]
         grid_B = [ [0]*col_count for _ in range(row_count) ]
-        grid_X = [ [0]*col_count for _ in range(row_count) ]
 
         seen_A = [ [False]*col_count for _ in range(row_count) ]
         seen_B = [ [False]*col_count for _ in range(row_count) ]
-        seen_X = [ [False]*col_count for _ in range(row_count) ]
 
         for row in range(row_count):
             for col in range(col_count):
@@ -84,26 +82,6 @@ def parasite():
                                     grid_B[i][j] = val
                                     heapq.heappush(pq_B, (val, i, j))
 
-        pq_X = [(grid_X[parasite_row][parasite_col], parasite_row, parasite_col)]
-        while len(pq_X) != 0:
-            val, row, col = heapq.heappop(pq_X)
-            if not seen_X[row][col]:
-                seen_X[row][col] = True
-                if grid_O[row][col] == 0 or grid_O[row][col] == 2:
-                    val += 1
-                for i in range(row-1, row+2):
-                    if i >= 0 and i < row_count:
-                        j = col
-                        if grid_X[i][j] > val:
-                            grid_X[i][j] = val
-                            heapq.heappush(pq_X, (val, i, j))
-                for j in range(col-1, col+2):
-                    if j >= 0 and j < col_count:
-                        i = row
-                        if grid_X[i][j] > val:
-                            grid_X[i][j] = val
-                            heapq.heappush(pq_X, (val, i, j))
-
         room_output['p1'] = {}
         for row_col_str in room_input['interestedIndividuals']:
             row_col_list = [int(int_str) for int_str in row_col_str.split(',')]
@@ -132,16 +110,52 @@ def parasite():
         if room_output['p3'] == max_count:
             room_output['p3'] = -1
 
-        room_output['p4'] = 0
-        for row in range(row_count):
-            for col in range(col_count):
-                if grid_O[row][col] == 1:
-                   if room_output['p4'] < grid_X[row][col]:
-                       room_output['p4'] = grid_X[row][col]
-        if room_output['p4'] == max_count:
-            room_output['p4'] = -1
+        room_output['p4'] = 0        
+        while True:
 
-        room_output['p4'] = -max_count
+            grid_X = [ [max_count]*col_count for _ in range(row_count) ]
+            seen_X = [ [False]*col_count for _ in range(row_count) ]
+            prev_X = [ [(-1,-1)]*col_count for _ in range(row_count) ]
+            grid_X[parasite_row][parasite_col] = 0
+            pq_X = [(0, parasite_row, parasite_col)]
+
+            while len(pq_X) != 0:
+                val, row, col = heapq.heappop(pq_X)
+                if not seen_X[row][col]:
+                    seen_X[row][col] = True
+                    if grid_O[row][col] == 0 or grid_O[row][col] == 2:
+                        val += 1
+                    for i in range(row-1, row+2):
+                        if i >= 0 and i < row_count:
+                            j = col
+                            if grid_X[i][j] > val:
+                                grid_X[i][j] = val
+                                prev_X[i][j] = (row, col)
+                                heapq.heappush(pq_X, (val, i, j))
+                    for j in range(col-1, col+2):
+                        if j >= 0 and j < col_count:
+                            i = row
+                            if grid_X[i][j] > val:
+                                grid_X[i][j] = val
+                                prev_X[i][j] = (row, col)
+                                heapq.heappush(pq_X, (val, i, j))
+
+            min_nonzero_distance = max_count
+            for row in range(row_count):
+                for col in range(col_count):
+                    if grid_O[row][col] == 1 and grid_X[row][col] > 0:
+                        if min_nonzero_distance > grid_X[row][col]:
+                            min_nonzero_distance = grid_X[row][col]
+                            path_row = row
+                            path_col = col
+
+            if min_nonzero_distance == max_count:
+                break
+            
+            room_output['p4'] += min_nonzero_distance
+            while path_row != -1 and path_col != -1:
+                grid_O[path_row][path_col] = 1
+                path_row, path_col = prev_X[path_row][path_col]
 
         output.append(room_output)
 
