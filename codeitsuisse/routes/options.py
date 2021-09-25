@@ -106,15 +106,15 @@ def optopt():
 
             if is_call[i] == 1 and strike[i] < b[j]:
                 increment = 0
-                increment += (cdf_bb[j]-cdf_cc[i][j])*(mu[j]-strike[i])
-                increment += -(pdf_bb[j]-pdf_cc[i][j])*(sigma[j]) 
+                increment += (cdf_bb[j]-cdf_cc[i][j])*(avg[j]-strike[i])
+                increment += -(pdf_bb[j]-pdf_cc[i][j])*(std[j]) 
                 increment /= (cdf_bb[j]-cdf_aa[j])
                 expected_return += increment
 
             if is_call[i] == 0 and strike[i] > a[j]:
                 increment = 0
-                increment += (cdf_dd[i][j]-cdf_aa[j])*(strike[i]-mu[j])
-                increment += -(pdf_dd[i][j]-pdf_aa[j])*(sigma[j]) 
+                increment += (cdf_dd[i][j]-cdf_aa[j])*(strike[i]-avg[j])
+                increment += -(pdf_dd[i][j]-pdf_aa[j])*(std[j]) 
                 increment /= (cdf_bb[j]-cdf_aa[j])
                 expected_return += increment
 
