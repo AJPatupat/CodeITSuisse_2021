@@ -99,7 +99,7 @@ def optopt():
     pdf_cc = norm.pdf(cc)
     pdf_dd = norm.pdf(dd)
 
-    expected_returns = np.zeroes(len(option_dicts))
+    expected_returns = np.zeros(len(option_dicts))
     for i in range(len(option_dicts)):
         for j in range(len(view_dicts)):
             expected_return = -premium[i]
