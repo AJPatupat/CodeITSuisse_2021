@@ -25,7 +25,7 @@ def stock_hunter():
         grid_add = input['gridDepth']
 
         grid = [[0]*x_count for _ in range(y_count)]
-        for x in range(1, x_count):
+        for x in range(x_count):
             grid[0][x] = (x*x_step+grid_add)%grid_mod
         for y in range(1, y_count):
             grid[y][0] = (y*y_step+grid_add)%grid_mod
@@ -33,9 +33,7 @@ def stock_hunter():
                 grid[y][x] = (grid[y][x-1]*grid[y-1][x]+grid_add)%grid_mod
         for y in range(y_count):
             for x in range(x_count):
-                grid[y][x] = grid[y][x] % 3
-                if grid[y][x] == 0:
-                    grid[y][x] = 3
+                grid[y][x] = 3 - grid[y][x] % 3
 
         x_max = max(input['entryPoint']['first'], input['targetPoint']['first'])
         x_min = min(input['entryPoint']['first'], input['targetPoint']['first'])
