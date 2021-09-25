@@ -8,6 +8,7 @@ from codeitsuisse import app
 logger = logging.getLogger(__name__)
 
 from scipy.stats import norm
+from math import sqrt
 
 def x0_minus_x1_all_over_x2_minus_x3(x0, x1, x2, x3):
     return (x0 * (1 - x1/x0)) / (x2 * (1 - x3/x2))
@@ -30,7 +31,7 @@ def expected_return_per_view(option_dict, view_dict):
             cc = (c-mu)/sigma
             multiplier0 = x0_minus_x1_all_over_x2_minus_x3(norm.cdf(bb), norm.cdf(cc), norm.cdf(bb), norm.cdf(aa))
             multiplier1 = x0_minus_x1_all_over_x2_minus_x3(norm.pdf(bb), norm.pdf(cc), norm.cdf(bb), norm.cdf(cc))
-            return multiplier0 * (mu - sigma * multiplier1 - strike)
+            return multiplier0 * (mu - sigma * multiplier1 - strike) - premium
 
     else:
         if strike <= view_dict['min']:
@@ -46,7 +47,7 @@ def expected_return_per_view(option_dict, view_dict):
             dd = (d-mu)/sigma
             multiplier0 = x0_minus_x1_all_over_x2_minus_x3(norm.cdf(dd), norm.cdf(aa), norm.cdf(bb), norm.cdf(aa))
             multiplier1 = x0_minus_x1_all_over_x2_minus_x3(norm.pdf(dd), norm.pdf(aa), norm.cdf(dd), norm.cdf(aa))
-            return multiplier0 * (strike - mu + sigma * multiplier1)
+            return multiplier0 * (strike - mu + sigma * multiplier1) - premium
 
 def expected_return_all_views(option_dict, view_dicts):
     return sum([
