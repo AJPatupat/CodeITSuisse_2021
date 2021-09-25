@@ -23,7 +23,7 @@ def parasite():
 
         row_count = len(grid_O)
         col_count = len(grid_O[0])
-        max_count = row_count + col_count + 10
+        max_count = row_count * col_count
 
         grid_A = [ [0]*col_count for _ in range(row_count) ]
         grid_B = [ [0]*col_count for _ in range(row_count) ]
