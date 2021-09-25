@@ -19,7 +19,7 @@ def expected_return_per_view(option_dict, view_dict):
             return -premium
         else:
             mu = view_dict['mean']
-            sigma = view_dict['var']
+            sigma = sqrt(view_dict['var'])
             a = view_dict['min']
             b = view_dict['max']
             c = max(a, strike)
@@ -38,7 +38,7 @@ def expected_return_per_view(option_dict, view_dict):
             return -premium
         else:
             mu = view_dict['mean']
-            sigma = view_dict['var']
+            sigma = sqrt(view_dict['var'])
             a = view_dict['min']
             b = view_dict['max']
             d = min(b, strike)
