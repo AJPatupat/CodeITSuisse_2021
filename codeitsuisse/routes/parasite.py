@@ -23,7 +23,7 @@ def parasite():
 
         row_count = len(grid_O)
         col_count = len(grid_O[0])
-        max_count = row_count + col_count
+        max_count = row_count + col_count + 10
 
         grid_A = [ [0]*col_count for _ in range(row_count) ]
         grid_B = [ [0]*col_count for _ in range(row_count) ]
@@ -45,7 +45,7 @@ def parasite():
                     grid_B[row][col] = max_count
                     grid_X[row][col] = max_count
                 elif val == 2:
-                    grid_A[row][col] = max_count
+                    grid_A[row][col] = -max_count
                     grid_B[row][col] = max_count
                     grid_X[row][col] = max_count
                 elif val == 3:
@@ -144,10 +144,6 @@ def parasite():
                        room_output['p4'] = grid_X[row][col]
         if room_output['p4'] == max_count:
             room_output['p4'] = -1
-
-        room_output['p2'] = -100
-        room_output['p3'] = -100
-        room_output['p4'] = -100
 
         output.append(room_output)
 
