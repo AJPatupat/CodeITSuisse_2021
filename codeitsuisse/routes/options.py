@@ -57,7 +57,7 @@ def expected_return_per_view(option_dict, view_dict):
 @app.route('/optopt', methods=['POST'])
 def optopt():
     input = request.get_json()
-    logging.info("Input: {}".format(input))
+    #logging.info("Input: {}".format(input))
 
     option_dicts = input['options']
     view_dicts = input['view']
@@ -92,12 +92,16 @@ def optopt():
 
     c = np.maximum(np.expand_dims(strike,1), np.expand_dims(a,0))
     d = np.minimum(np.expand_dims(strike,1), np.expand_dims(b,0))
-    cc = (c-avg)/std
-    dd = (d-avg)/std
-    cdf_cc = norm.cdf(cc)
-    cdf_dd = norm.cdf(dd)
-    pdf_cc = norm.pdf(cc)
-    pdf_dd = norm.pdf(dd)
+    e = np.where(np.expand_dims(is_call,1), c, d)
+    ee = (c-avg)/std
+    cdf_ee = norm.cdf(ee)
+    pdf_ee = norm.pdf(ee)
+    #cc = (c-avg)/std
+    #dd = (d-avg)/std
+    #cdf_cc = norm.cdf(cc)
+    #cdf_dd = norm.cdf(dd)
+    #pdf_cc = norm.pdf(cc)
+    #pdf_dd = norm.pdf(dd)
 
     expected_returns = np.zeros(len(option_dicts))
     for i in range(len(option_dicts)):
@@ -106,15 +110,19 @@ def optopt():
 
             if is_call[i] == 1 and strike[i] < b[j]:
                 increment = 0
-                increment += (cdf_bb[j]-cdf_cc[i][j])*(avg[j]-strike[i])
-                increment += -(pdf_bb[j]-pdf_cc[i][j])*(std[j]) 
+                increment += (cdf_bb[j]-cdf_ee[i][j])*(avg[j]-strike[i])
+                increment += -(pdf_bb[j]-pdf_ee[i][j])*(std[j])
+                #increment += (cdf_bb[j]-cdf_cc[i][j])*(avg[j]-strike[i])
+                #increment += -(pdf_bb[j]-pdf_cc[i][j])*(std[j])
                 increment /= (cdf_bb[j]-cdf_aa[j])
                 expected_return += increment
 
             if is_call[i] == 0 and strike[i] > a[j]:
                 increment = 0
-                increment += (cdf_dd[i][j]-cdf_aa[j])*(strike[i]-avg[j])
-                increment += (pdf_dd[i][j]-pdf_aa[j])*(std[j]) 
+                increment += (cdf_ee[i][j]-cdf_aa[j])*(strike[i]-avg[j])
+                increment += (pdf_ee[i][j]-pdf_aa[j])*(std[j]) 
+                #increment += (cdf_dd[i][j]-cdf_aa[j])*(strike[i]-avg[j])
+                #increment += (pdf_dd[i][j]-pdf_aa[j])*(std[j]) 
                 increment /= (cdf_bb[j]-cdf_aa[j])
                 expected_return += increment
 
@@ -127,5 +135,6 @@ def optopt():
     else:
         output[pos] = -100
 
-    logging.info("Output: {}".format(output))
+    #logging.info("Output: {}".format(output))
+    logging.info("Problem Size: {} Options x {} Views".format(len(option_dicts), len(view_dicts)))
     return json.dumps(output)
