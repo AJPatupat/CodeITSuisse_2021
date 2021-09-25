@@ -7,7 +7,7 @@ from codeitsuisse import app
 
 logger = logging.getLogger(__name__)
 
-from scipy.stats.norm import cdf, pdf
+from scipy.stats import norm
 
 def x0_minus_x1_all_over_x2_minus_x3(x0, x1, x2, x3):
     return (x0 * (1 - x1/x0)) / (x2 * (1 - x3/x2))
@@ -28,8 +28,8 @@ def expected_return_per_view(option_dict, view_dict):
             aa = (a-mu)/sigma
             bb = (b-mu)/sigma
             cc = (c-mu)/sigma
-            multiplier0 = x0_minus_x1_all_over_x2_minus_x3(cdf(bb), cdf(cc), cdf(bb), cdf(aa))
-            multiplier1 = x0_minus_x1_all_over_x2_minus_x3(pdf(bb), pdf(cc), cdf(bb), cdf(cc))
+            multiplier0 = x0_minus_x1_all_over_x2_minus_x3(norm.cdf(bb), norm.cdf(cc), norm.cdf(bb), norm.cdf(aa))
+            multiplier1 = x0_minus_x1_all_over_x2_minus_x3(norm.pdf(bb), norm.pdf(cc), norm.cdf(bb), norm.cdf(cc))
             return multiplier0 * (mu - sigma * multiplier1 - strike)
 
     else:
@@ -44,8 +44,8 @@ def expected_return_per_view(option_dict, view_dict):
             aa = (a-mu)/sigma
             bb = (b-mu)/sigma
             dd = (d-mu)/sigma
-            multiplier0 = x0_minus_x1_all_over_x2_minus_x3(cdf(dd), cdf(aa), cdf(bb), cdf(aa))
-            multiplier1 = x0_minus_x1_all_over_x2_minus_x3(pdf(dd), pdf(aa), cdf(dd), cdf(aa))
+            multiplier0 = x0_minus_x1_all_over_x2_minus_x3(norm.cdf(dd), norm.cdf(aa), norm.cdf(bb), norm.cdf(aa))
+            multiplier1 = x0_minus_x1_all_over_x2_minus_x3(norm.pdf(dd), norm.pdf(aa), norm.cdf(dd), norm.cdf(aa))
             return multiplier0 * (strike - mu + sigma * multiplier1)
 
 def expected_return_all_views(option_dict, view_dicts):
