@@ -141,7 +141,6 @@ def parasite():
         if room_output['p4'] == max_count:
             room_output['p4'] = -1
 
-        room_output['p2'] = -max_count
         room_output['p3'] = -max_count
         room_output['p4'] = -max_count
 
