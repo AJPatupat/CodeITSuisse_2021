@@ -8,7 +8,7 @@ from codeitsuisse import app
 logger = logging.getLogger(__name__)
 
 import hashlib
-SHA = hashlib.sha256()
+from math import log
 
 @app.route('/cipher-cracking', methods=['POST'])
 def cipher_cracking():
@@ -17,18 +17,14 @@ def cipher_cracking():
 
     output = []
     for test_case in input:
-        if test_case['D'] == 1:
-            X = int(test_case['X'])
-            fx = sum([(X+1-i)/(i*X) for i in range(1,X+1)])
-            FX = '::{.3f}'.format(fx)
-            for K in range(1, 10**test_case['D']):
-                SHA.update(bytes(str(K)+FX))
-                SHA.digest()
-                if SHA.hexdigest() == test_case['Y']:
-                    break
-            output.append(K)
-        else:
-            output.append(1)
+        X = int(test_case['X'])
+        fx = (X+1)/X * (0.57721566 + log(X) + 0.5/X) - 1
+        FX = '::{:.3f}'.format(fx)
+        for K in range(1, 10**test_case['D']):
+            if hashlib.sha256((str(K)+FX).encode('utf-8')).hexdigest() == test_case['Y']:                    
+                break
+        output.append(K)
+    return output
 
     logging.info("Output: {}".format(output))
     return json.dumps(output)
