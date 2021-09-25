@@ -17,14 +17,14 @@ def cipher_cracking():
 
     output = []
     for test_case in input:
-        if text_case['D'] == 1:
-            X = text_case['X']
+        if test_case['D'] == 1:
+            X = test_case['X']
             fx = sum([(X+1-i)/(i*X) for i in range(1,X+1)])
             FX = '::{.3f}'.format(fx)
-            for K in range(1, 10**text_case['D']):
+            for K in range(1, 10**test_case['D']):
                 SHA.update(bytes(str(K)+FX))
                 SHA.digest()
-                if SHA.hexdigest() == text_case['Y']:
+                if SHA.hexdigest() == test_case['Y']:
                     break
             output.append(K)
         else:
