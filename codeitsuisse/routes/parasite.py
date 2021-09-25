@@ -27,7 +27,6 @@ def parasite():
 
         grid_A = [ [0]*col_count for _ in range(row_count) ]
         grid_B = [ [0]*col_count for _ in range(row_count) ]
-
         seen_A = [ [False]*col_count for _ in range(row_count) ]
         seen_B = [ [False]*col_count for _ in range(row_count) ]
 
@@ -37,15 +36,12 @@ def parasite():
                 if val == 0 or val == 2:
                     grid_A[row][col] = -max_count
                     grid_B[row][col] = -max_count
-                    grid_X[row][col] = max_count
                 elif val == 1:
                     grid_A[row][col] = max_count
                     grid_B[row][col] = max_count
-                    grid_X[row][col] = max_count
                 elif val == 3:
                     grid_A[row][col] = 0
                     grid_B[row][col] = 0
-                    grid_X[row][col] = 0
                     parasite_row = row
                     parasite_col = col
 
