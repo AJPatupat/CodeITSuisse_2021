@@ -36,11 +36,11 @@ def parasite():
         for row in range(row_count):
             for col in range(col_count):
                 val = grid_O[row][col]
-                if val == 0 or val == 2:
+                if val == 0:
                     grid_A[row][col] = -max_count
                     grid_B[row][col] = -max_count
                     grid_X[row][col] = max_count
-                elif val == 1:
+                elif val == 1 or val == 2:
                     grid_A[row][col] = max_count
                     grid_B[row][col] = max_count
                     grid_X[row][col] = max_count
