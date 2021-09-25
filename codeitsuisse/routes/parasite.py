@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 import heapq
 
 @app.route('/parasite', methods=['POST'])
-def evaluate():
+def parasite():
     input = request.get_json()
     logging.info("Input: {}".format(input))
 
