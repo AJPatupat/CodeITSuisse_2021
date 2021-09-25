@@ -4,3 +4,4 @@ import codeitsuisse.routes.square
 import codeitsuisse.routes.parasite
 import codeitsuisse.routes.options
 import codeitsuisse.routes.stock
+import codeitsuisse.routes.cipher
