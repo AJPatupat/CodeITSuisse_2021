@@ -7,8 +7,9 @@ from codeitsuisse import app
 
 logger = logging.getLogger(__name__)
 
+import numpy as np
 from scipy.stats import norm
-from math import sqrt
+
 
 def expected_return_per_view(option_dict, view_dict):
     strike = option_dict['strike']
@@ -19,7 +20,7 @@ def expected_return_per_view(option_dict, view_dict):
             return -premium
         else:
             mu = view_dict['mean']
-            sigma = sqrt(view_dict['var'])
+            sigma = np.sqrt(view_dict['var'])
             a = view_dict['min']
             b = view_dict['max']
             c = max(a, strike)
@@ -38,7 +39,7 @@ def expected_return_per_view(option_dict, view_dict):
             return -premium
         else:
             mu = view_dict['mean']
-            sigma = sqrt(view_dict['var'])
+            sigma = np.sqrt(view_dict['var'])
             a = view_dict['min']
             b = view_dict['max']
             d = min(b, strike)
@@ -52,6 +53,7 @@ def expected_return_per_view(option_dict, view_dict):
             multiplier1 = diff_pdf_dd_aa / diff_cdf_bb_aa
             return multiplier0 * (strike - mu) + multiplier1 * sigma - premium
 
+
 @app.route('/optopt', methods=['POST'])
 def optopt():
     input = request.get_json()
@@ -60,63 +62,70 @@ def optopt():
     option_dicts = input['options']
     view_dicts = input['view']
 
-    expected_returns_list = [0] * len(option_dicts)
+    strike = np.empty(len(option_dicts))
+    premium = np.empty(len(option_dicts))
+    is_call = np.empty(len(option_dicts))
+    for i in range(len(option_dicts)):
+        strike[i] = option_dicts[i]['strike']
+        premium[i] = option_dicts[i]['premium']
+        is_call[i] = 1 if option_dicts[i]['type'] == 'call' else 0
 
-    for view_dict in view_dicts:
-        mu = view_dict['mean']
-        sigma = sqrt(view_dict['var'])
-        a = view_dict['min']
-        b = view_dict['max']
-        aa = (a-mu)/sigma
-        bb = (b-mu)/sigma
-        cdf_aa = norm.cdf(aa)
-        cdf_bb = norm.cdf(bb)
-        pdf_aa = norm.pdf(aa)
-        pdf_bb = norm.pdf(bb)
-        diff_cdf_bb_aa = cdf_bb - cdf_aa
-    
-        for pos in range(len(option_dicts)):
-            option_dict = option_dicts[pos]
-            strike = option_dict['strike']
-            expected_return_of_view = -option_dict['premium']
+    avg = np.empty(len(view_dicts))
+    var = np.empty(len(view_dicts))
+    a = np.empty(len(view_dicts))
+    b = np.empty(len(view_dicts))
+    w = np.empty(len(view_dicts))
+    for i in range(len(view_dicts)):        
+        avg[i] = view_dicts[i]['mean']
+        var[i] = view_dicts[i]['var']
+        a[i] = view_dicts[i]['min']
+        b[i] = view_dicts[i]['max']
+        w[i] = view_dicts[i]['weight']
 
-            if option_dict['type'] == 'call' and strike < b:
-                c = max(a, strike)
-                cc = (c-mu)/sigma
-                cdf_cc = norm.cdf(cc)
-                pdf_cc = norm.pdf(cc)
-                increment = (cdf_bb-cdf_cc)*(mu-strike) - (pdf_bb-pdf_cc)*sigma
-                increment /= diff_cdf_bb_aa
-                expected_return_of_view += increment
-            
-            if option_dict['type'] == 'put' and strike > a:
-                d = min(b, strike)
-                dd = (d-mu)/sigma
-                cdf_dd = norm.cdf(dd)
-                pdf_dd = norm.pdf(dd)
-                increment = (cdf_dd-cdf_aa)*(strike-mu) + (pdf_dd-pdf_aa)*sigma
-                increment /= diff_cdf_bb_aa
-                expected_return_of_view += increment
+    std = np.sqrt(var)
+    aa = (a-avg)/std
+    bb = (b-avg)/std
+    cdf_aa = norm.cdf(aa)
+    cdf_bb = norm.cdf(bb)
+    pdf_aa = norm.pdf(aa)
+    pdf_bb = norm.pdf(bb)
 
-            expected_returns_list[pos] += view_dict['weight'] * expected_return_of_view
+    c = np.maximum(np.expand_dims(strike,1), np.expand_dims(a,0))
+    d = np.minimum(np.expand_dims(strike,1), np.expand_dims(b,0))
+    cc = (c-avg)/std
+    dd = (d-avg)/std
+    cdf_cc = norm.cdf(cc)
+    cdf_dd = norm.cdf(dd)
+    pdf_cc = norm.pdf(cc)
+    pdf_dd = norm.pdf(dd)
 
-    
-    max_abs_val = 0
-    argmax_val = 0
-    argmax_pos = 0
-    for pos in range(len(option_dicts)):
-        val = expected_returns_list[pos]
-        abs_val = abs(val)
-        if max_abs_val < abs_val:
-            max_abs_val = abs_val
-            argmax_val = val
-            argmax_pos = pos
+    expected_returns = np.zeroes(len(option_dicts))
+    for i in range(len(option_dicts)):
+        for j in range(len(view_dicts)):
+            expected_return = -premium[i]
 
+            if is_call[i] == 1 and strike[i] < b[j]:
+                increment = 0
+                increment += (cdf_bb[j]-cdf_cc[i][j])*(mu[j]-strike[i])
+                increment += -(pdf_bb[j]-pdf_cc[i][j])*(sigma[j]) 
+                increment /= (cdf_bb[j]-cdf_aa[j])
+                expected_return += increment
+
+            if is_call[i] == 0 and strike[i] > a[j]:
+                increment = 0
+                increment += (cdf_dd[i][j]-cdf_aa[j])*(strike[i]-mu[j])
+                increment += -(pdf_dd[i][j]-pdf_aa[j])*(sigma[j]) 
+                increment /= (cdf_bb[j]-cdf_aa[j])
+                expected_return += increment
+
+            expected_returns[i] += w[j] * expected_return
+
+    pos = np.argmax(np.abs(expected_returns))
     output = [0] * len(option_dicts)
-    if argmax_val < 0:
-        output[argmax_pos] = -100
+    if expected_returns[pos] > 0:
+        output[pos] = 100
     else:
-        output[argmax_pos] = 100
+        output[pos] = -100
 
     logging.info("Output: {}".format(output))
     return json.dumps(output)
