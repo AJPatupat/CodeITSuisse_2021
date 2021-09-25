@@ -141,6 +141,10 @@ def parasite():
         if room_output['p4'] == max_count:
             room_output['p4'] = -1
 
+        room_output['p2'] = -100
+        room_output['p3'] = -100
+        room_output['p4'] = -100
+
         output.append(room_output)
 
     logging.info("Output: {}".format(output))
