@@ -21,6 +21,7 @@ pipenv==2021.5.29
 pycodestyle==2.7.0
 pyflakes==2.3.1
 requests==2.26.0
+scipy=1.7.1
 shutilwhich==1.1.0
 urllib3==1.26.7
 virtualenv==20.8.1
