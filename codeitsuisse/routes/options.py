@@ -52,12 +52,6 @@ def expected_return_per_view(option_dict, view_dict):
             multiplier1 = diff_pdf_dd_aa / diff_cdf_bb_aa
             return multiplier0 * (strike - mu) + multiplier1 * sigma - premium
 
-def expected_return_all_views(option_dict, view_dicts):
-    return sum([
-        view_dict['weight'] * expected_return_per_view(option_dict, view_dict)
-        for view_dict in view_dicts
-    ])
-
 @app.route('/optopt', methods=['POST'])
 def optopt():
     input = request.get_json()
@@ -66,11 +60,52 @@ def optopt():
     option_dicts = input['options']
     view_dicts = input['view']
 
+    expected_returns_list = [0] * len(option_dicts)
+
+    for view_dict in view_dicts:
+        mu = view_dict['mean']
+        sigma = sqrt(view_dict['var'])
+        a = view_dict['min']
+        b = view_dict['max']
+        aa = (a-mu)/sigma
+        bb = (b-mu)/sigma
+        cdf_aa = norm.cdf(aa)
+        cdf_bb = norm.cdf(bb)
+        pdf_aa = norm.pdf(aa)
+        pdf_bb = norm.pdf(bb)
+        diff_cdf_bb_aa = cdf_bb - cdf_aa
+    
+        for pos in range(len(option_dicts)):
+            option_dict = option_dicts[pos]
+            strike = option_dict['strike']
+            expected_return_of_view = -option_dict['premium']
+
+            if option_dict['type'] == 'call' and strike < b:
+                c = max(a, strike)
+                cc = (c-mu)/sigma
+                cdf_cc = norm.cdf(cc)
+                pdf_cc = norm.pdf(cc)
+                increment = (cdf_bb-cdf_cc)*(mu-strike) - (pdf_bb-pdf_cc)*sigma
+                increment /= diff_cdf_bb_aa
+                expected_return_of_view += increment
+            
+            if option_dict['type'] == 'put' and strike > a:
+                d = min(b, strike)
+                dd = (d-mu)/sigma
+                cdf_dd = norm.cdf(dd)
+                pdf_dd = norm.pdf(dd)
+                increment = (cdf_dd-cdf_aa)*(strike-mu) + (pdf_dd-pdf_aa)*sigma
+                increment /= diff_cdf_bb_aa
+                expected_return_of_view += increment
+
+            expected_returns_list[pos] += view_dict['weight'] * expected_return_of_view
+
+    
     max_abs_val = 0
     argmax_val = 0
     argmax_pos = 0
     for pos in range(len(option_dicts)):
-        val = expected_return_all_views(option_dicts[pos], view_dicts)
+        val = expected_returns_list[pos]
         abs_val = abs(val)
         if max_abs_val < abs_val:
             max_abs_val = abs_val
