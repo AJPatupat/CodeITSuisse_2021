@@ -59,8 +59,8 @@ def optopt():
     input = request.get_json()
     logging.info("Input: {}".format(input))
 
-    option_dicts = data['options']
-    view_dicts = data['view']
+    option_dicts = input['options']
+    view_dicts = input['view']
 
     max_abs_val = 0
     argmax_val = 0
