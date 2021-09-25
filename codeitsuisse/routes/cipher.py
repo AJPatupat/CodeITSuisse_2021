@@ -18,7 +18,7 @@ def cipher_cracking():
     output = []
     for test_case in input:
         if test_case['D'] == 1:
-            X = test_case['X']
+            X = int(test_case['X'])
             fx = sum([(X+1-i)/(i*X) for i in range(1,X+1)])
             FX = '::{.3f}'.format(fx)
             for K in range(1, 10**test_case['D']):
