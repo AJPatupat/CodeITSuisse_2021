@@ -24,7 +24,6 @@ def cipher_cracking():
             if hashlib.sha256((str(K)+FX).encode('utf-8')).hexdigest() == test_case['Y']:                    
                 break
         output.append(K)
-    return output
 
     logging.info("Output: {}".format(output))
     return json.dumps(output)
