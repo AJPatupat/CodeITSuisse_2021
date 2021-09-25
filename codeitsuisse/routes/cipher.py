@@ -20,7 +20,7 @@ def cipher_cracking():
         X = int(test_case['X'])
         fx = (X+1)/X * (0.57721566 + log(X) + 0.5/X) - 1
         FX = '::{:.3f}'.format(fx)
-        for K in range(1, 10**test_case['D']):
+        for K in range(1+10**test_case['D']):
             if hashlib.sha256((str(K)+FX).encode('utf-8')).hexdigest() == test_case['Y']:                    
                 break
         output.append(K)
